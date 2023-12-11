@@ -1,15 +1,17 @@
 pipeline {
     agent any
 
-    triggers {
-        githubPush()
-    }
-    
     stages {
+        stage('Checkout SCM') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 script {
-                    bat 'docker build -t moja_aplikacja_flask:latest -f Dockerfile .'
+                    def customImage = docker.build('moja_aplikacja_flask:latest', '.')
                 }
             }
         }
@@ -17,14 +19,19 @@ pipeline {
         stage('Run Docker Container') {
             steps {
                 script {
-                    bat 'docker run -p 5000:5000 -d moja_aplikacja_flask:latest'
+                    customImage = docker.image('moja_aplikacja_flask:latest')
+                    customImage.run('-p 5000:5000 --name moja_aplikacja_flask_container -d')
                 }
             }
         }
+    }
 
-        stage('Print Message') {
-            steps {
-                echo "Build step executed successfully!"
+    post {
+        always {
+            script {
+                customImage.inside {
+                    echo 'Cleaning up...'
+                }
             }
         }
     }
