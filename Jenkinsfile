@@ -20,7 +20,7 @@ pipeline {
             steps {
                 script {
                     customImage = docker.image('moja_aplikacja_flask:latest')
-                    customImage.run('-p 5000:5000 --name moja_aplikacja_flask_container -d')
+                    customImage.run('-p 5000:5000 --name moja_aplikacja_flask_container -d -v ' + pwd() + ':/app')
                 }
             }
         }
