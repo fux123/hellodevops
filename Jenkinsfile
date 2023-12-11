@@ -1,32 +1,26 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.8'  // Wybierz odpowiedni obraz Dockerowy z Pythonem
-        }
-    }
-    
+    agent any
+
     stages {
-        stage('Checkout') {
-            steps {
-                checkout([$class: 'GitSCM', branches: [[name: 'main']], userRemoteConfigs: [[url: 'https://github.com/fux123/hellodevops.git']]])
-            }
-        }
-        
-        stage('Build') {
+        stage('Build Docker Image') {
             steps {
                 script {
-                    // Dodaj kroki budowy obrazu Dockerowego
-                    sh 'docker build -t moja_aplikacja_flask:latest -f Dockerfile .'
+                    bat 'docker build -t moja_aplikacja_flask:latest -f Dockerfile .'
                 }
             }
         }
-        
-        stage('Run') {
+
+        stage('Run Docker Container') {
             steps {
                 script {
-                    // Dodaj kroki uruchomienia kontenera Dockerowego
-                    sh 'docker run -p 5000:5000 -d moja_aplikacja_flask:latest'
+                    bat 'docker run -p 5000:5000 -d moja_aplikacja_flask:latest'
                 }
+            }
+        }
+
+        stage('Print Message') {
+            steps {
+                echo "Build step executed successfully!"
             }
         }
     }
